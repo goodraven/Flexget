@@ -82,7 +82,10 @@ def name_to_re(name, ignore_prefixes=None, parser=None):
     res = res.strip()
     # accept either '&' or 'and'
     res = re.sub(' (&|and) ', ' (?:and|&) ', res, re.UNICODE)
-    res = re.sub(' +', blank + '*', res, re.UNICODE)
+    # The second arg to re.sub processes escape sequences and in python3.6+
+    # will choke on unrecognized escape sequences like \w. We should escape
+    # backslashes that we want to remain in the result.
+    res = re.sub(' +', blank.replace('\\', '\\\\') + '*', res, re.UNICODE)
     if parenthetical:
         res += '(?:' + blank + '+' + parenthetical + ')?'
         # Turn on exact mode for series ending with a parenthetical,
